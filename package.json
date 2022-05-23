@@ -1,0 +1,40 @@
+{
+  "name": "unique_rft_event",
+  "version": "1.0.0",
+  "description": "Misc. Scripts for RFT Event",
+  "main": "",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "host": "node ./src/hostlocally.js",
+    "build": "webpack --mode production"
+  },
+  "author": "",
+  "license": "Apache 2.0",
+  "homepage": "",
+  "dependencies": {
+    "@polkadot/api": "7.8.1",
+    "@polkadot/extension-dapp": "0.43.3-1",
+    "@polkadot/keyring": "9.2.2-6",
+    "@polkadot/util": "9.2.2-6",
+    "@unique-nft/types": "0.5.1",
+    "bignumber.js": "^9.0.0",
+    "express": "5.0.0-alpha.8",
+    "web3": "1.7.4-rc.0"
+  },
+  "standard": {
+    "globals": [
+      "it",
+      "assert",
+      "beforeEach",
+      "afterEach",
+      "describe",
+      "contract",
+      "artifacts"
+    ]
+  },
+  "devDependencies": {
+    "crypto-browserify": "^3.12.0"
+  }
+}

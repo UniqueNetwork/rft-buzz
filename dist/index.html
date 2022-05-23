@@ -1,0 +1,92 @@
+<html>
+<head>
+    <script src="rft-helpers.js"></script>
+    <script>
+
+        const rft = new RFTHelpers();
+
+        let addresses = []; // Wallets
+
+        function showAddresses() {
+
+            addresses = rft.getAccounts();
+            let list = "<b>Please copy+paste one address to our Telegram bot</b><br><br>";
+            for (let i=0; i<addresses.length; i++) {
+                list += `${addresses[i].toString()}<br>`;
+            }
+
+            document.getElementById("addressList").innerHTML = list;
+        }
+
+        async function connectPolkadot() {
+            await rft.connectPolkadot();
+            await detectSigner();
+        }
+
+        async function connectMetamask() {
+            try {
+                await window.ethereum.enable();
+            } catch (err) {
+                console.log("User denied metamask account access");
+            }
+
+            await rft.connectMetamask();
+            await detectSigner();
+        }
+
+        async function detectSigner() {
+            if (await rft.isSignerConnected()) {
+                document.getElementById("polkaBtn").disabled = true;
+                document.getElementById("metamaskBtn").disabled = true;
+                showAddresses();
+            }
+            else {
+                if (await rft.checkPolkadotExtension())
+                    document.getElementById("polkaBtn").disabled = false;
+                else 
+                    document.getElementById("polkaBtn").disabled = true;
+
+                if (await rft.checkMetamask())
+                    document.getElementById("metamaskBtn").disabled = false;
+                else 
+                    document.getElementById("metamaskBtn").disabled = true;
+            }
+        }
+
+        window.onload = async function () {
+            setTimeout(async () => { detectSigner(); }, 1000);
+        }
+
+    </script>
+</head>
+<body>
+
+    <table>
+        <tr>
+            <td valign="top">
+                <button id="polkaBtn" onclick="connectPolkadot()" disabled>Connect with Polkadot{.js}</button>
+                <button id="metamaskBtn" onclick="connectMetamask()" disabled>Connect with Metamask</button><br/>
+
+                <br>
+                <span id="addressList"></span>
+
+                <!-- <select id="selectAddress" disabled>
+                    <option>Choose the account</option>
+                </select><br/>
+                Referral code: <input type="text" id="refCode"/><br/>
+                <button onclick="contribute()" id="contribute" disabled>Contribute to Unique Crowdloan</button><br/>
+                Parachain ID: <span id="paraid"></span><br/>
+                Volume contributed atm: <span id="contrubution">0</span> DOT
+                <br>
+                <br>
+                <button onclick="bfcontribute()">Test Bifrost</button><br/> -->
+            </td>
+        </tr>
+    </table>
+
+<br><br>
+<div id="content"></div>
+
+
+</body>
+</html>
