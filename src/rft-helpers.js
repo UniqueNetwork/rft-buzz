@@ -7,6 +7,7 @@ const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { web3Accounts, web3Enable, web3FromAddress } = require('@polkadot/extension-dapp');
 const { stringToHex, u8aToHex, hexToU8a, isHex } = require('@polkadot/util');
 const { decodeAddress, encodeAddress } = require('@polkadot/keyring');
+const config = require('./config');
 
 var BigNumber = require('bignumber.js');
 BigNumber.config({ DECIMAL_PLACES: 12, ROUNDING_MODE: BigNumber.ROUND_DOWN, decimalSeparator: '.' });
@@ -50,7 +51,7 @@ class RFTHelpers {
 
   async checkPolkadotExtension() {
     await web3Enable('uniquerftevent');
-    const allAccounts = await web3Accounts({ ss58Format: 7391 });
+    const allAccounts = await web3Accounts({ ss58Format: config.ss58prefix });
 
     if (allAccounts.length == 0) return false;
     else return true;
@@ -65,7 +66,7 @@ class RFTHelpers {
 
   async connectPolkadot() {
     await this.checkPolkadotExtension();
-    let accObj = await web3Accounts({ ss58Format: 7391 });
+    let accObj = await web3Accounts({ ss58Format: config.ss58prefix });
     this.accounts = [];
     for (let i=0; i<accObj.length; i++) {
       this.accounts.push(accObj[i].address);

@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  rft_buzz_db:
+    container_name: rft_buzz_db
+    image: postgres:13.4
+    env_file:
+      - ./.env
+    environment:
+      PGDATA: /data/postgres
+      POSTGRES_INITDB_ARGS: "--auth-local=trust"
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./postgres/${DB_FOLDER}:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - rfteventnet
+    restart: unless-stopped
+
+  rft_backend:
+    container_name: rft_backend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - port=${port}
+    ports:
+      - ${port}:${port}
+    networks:
+      - rfteventnet
+    restart: unless-stopped
+
+  tg_bot:
+    container_name: tg_bot
+    build:
+      context: .
+      dockerfile: Dockerfile.tgbot
+    env_file:
+      - ./.env
+    volumes:
+      - ./logs:/logs
+    networks:
+      - rfteventnet
+    restart: unless-stopped
+
+networks:
+  rfteventnet:
+    driver: bridge
+
+volumes:
+  postgres:
