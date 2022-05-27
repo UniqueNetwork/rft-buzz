@@ -13,7 +13,9 @@ services:
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
       - ./postgres/${DB_FOLDER}:/data/postgres
     ports:
-      - "5432:5432"
+      - "5433:5433"
+    command:
+      -p 5433
     networks:
       - rfteventnet
     restart: unless-stopped
