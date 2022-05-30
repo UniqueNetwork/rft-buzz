@@ -27,7 +27,7 @@ app.get('/address', async function(req, res) {
     const u = await user.get(uriprm);
 
     if (u) {
-      res.json({ user: u });
+      res.json({ registered: true });
     } else {
       res.status(404).send('Not found');
     }
