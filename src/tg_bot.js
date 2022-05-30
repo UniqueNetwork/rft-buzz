@@ -15,6 +15,7 @@ const PATH_LOG = `/logs/bot_log.csv`;
 
 let humans = {};
 let addresses = {};
+let emails = {};
 
 bot.catch((err) => {
   console.log('==== Ooops', err)
@@ -56,7 +57,27 @@ function bufferAddress(msg, userId) {
   } catch (e) {}
   if (address.length > 0) {
     addresses[userId] = address;
+    return true;
   }
+  return false;
+}
+
+function validateEmail(email) {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
+function bufferEmail(msg, userId) {
+  try {
+      if (validateEmail(msg)) {
+          emails[userId] = msg;
+          return true;
+      }
+  } catch (e) {}
+  return false;
 }
 
 function challenge(ctx, again) {
@@ -75,7 +96,8 @@ bot.on('text', async (ctx) => {
     console.log('=== ', Date(), ' ===');
     console.log(`Registration request: ${ctx.message.from.id}, tg handle: ${ctx.message.from.username}`);
 
-    bufferAddress(ctx.message.text, ctx.message.from.id);
+    const addressMessage = bufferAddress(ctx.message.text, ctx.message.from.id);
+    const emailMessage = bufferEmail(ctx.message.text, ctx.message.from.id);
 
     // Check if this is a human
     if (humans[ctx.message.from.id] === undefined) {
@@ -101,11 +123,12 @@ bot.on('text', async (ctx) => {
     }
 
     if (humans[ctx.message.from.id] === true) {
-      // Register
+      // This is a human, we can continue. Register, then add email
       const u = await user.getByKyc("telegram", ctx.message.from.id);
+      const email = ((u) && (u.Email) && (u.Email.length > 3)) || (emails[ctx.message.from.id] !== undefined);
 
       if (u) {
-          ctx.reply(`You have already registered an address previously: ${u.Address}`).catch( function(error){ console.error(error); } );
+        if (!emailMessage) ctx.reply(`You have already registered an address previously: ${u.Address}${email ? '':'\n\nBut you have not yet provided an email address. Please enter your email address if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
       }
       else if (addresses[ctx.message.from.id] === undefined) {
           ctx.reply(`The address you provided is incorrect, please try again.`).catch( function(error){ console.error(error); } );
@@ -114,8 +137,15 @@ bot.on('text', async (ctx) => {
         await user.register(addresses[ctx.message.from.id], "telegram", ctx.message.from.id);
         delete addresses[ctx.message.from.id]; // cleanup
 
-        ctx.reply(`Thank you for registering for RFT campaign! Get back to the RFT campaign page and stay tuned for the next steps!`).catch( function(error){ console.error(error); } );
+        ctx.reply(`Thank you for registering for RFT campaign! Get back to the RFT campaign page and stay tuned for the next steps!${email ? '':'\n\nAlso, you can enter your email address here if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
         fs.appendFileSync(PATH_LOG, `${Date()},${ctx.message.from.id},${ctx.message.from.username},${ctx.message.from.first_name},${ctx.message.from.last_name},${ctx.message.text}\n`);
+      }
+
+      // Handle emails
+      if ((u) && (!u.Email) && (emails[ctx.message.from.id] !== undefined)) {
+        await user.addEmail(u.Address, emails[ctx.message.from.id]);
+        if (emailMessage) 
+          ctx.reply(`Thank you for providing your email address!`).catch( function(error){ console.error(error); } );
       }
     }
   } 

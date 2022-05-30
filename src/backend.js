@@ -60,6 +60,17 @@ class User extends DBBase {
     }
   }
 
+  async addEmail(address, email) {
+    try {
+      address = this.validateAddress(address);
+      const conn = await this.getDbConnection();
+      await conn.query(`UPDATE public."User" SET "Email" = $1;`, [email]);
+    } catch (e) {
+      console.log(`WARNING: Can't add email`);
+      console.log(e);
+    }
+  }
+
   async get(address) {
     try {
       address = this.validateAddress(address);
