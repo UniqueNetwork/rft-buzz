@@ -48,6 +48,18 @@ services:
       - rfteventnet
     restart: unless-stopped
 
+  export:
+    container_name: export
+    build:
+      context: .
+      dockerfile: ./Dockerfile.export
+    env_file:
+      - ./.env
+    volumes:
+      - ./data:/data
+    networks:
+      - rfteventnet
+
 networks:
   rfteventnet:
     driver: bridge

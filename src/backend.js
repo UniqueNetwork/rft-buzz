@@ -95,6 +95,18 @@ class User extends DBBase {
     return null;
   }
 
+  async getAll() {
+    try {
+      // Get all users from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT * FROM public."User";`);
+      if (res.rows.length > 0) 
+        return res.rows;
+    } catch (e) {}
+
+    return null;
+  }
+
 }
 
 module.exports = {
