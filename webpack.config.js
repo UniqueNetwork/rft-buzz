@@ -1,9 +1,11 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/rft-helpers.js',
+  entry: {
+    'rft-cookies': './src/rft-cookies.js', 
+    'rft-helpers': './src/rft-helpers.js'
+  },
   output: {
-    filename: 'rft-helpers.js',
     path: path.resolve(__dirname, 'dist'),
   },
   resolve: {

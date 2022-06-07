@@ -1,9 +1,10 @@
 <html>
 <head>
+    <script src="rft-cookies.js"></script>
     <script src="rft-helpers.js"></script>
     <script>
 
-        const rft = new RFTHelpers();
+        const rftCookies = new RFTCookies();
 
         let addresses = []; // Wallets
 
@@ -16,6 +17,13 @@
             }
 
             document.getElementById("addressList").innerHTML = list;
+        }
+
+        async function loadScript(path) {
+            let script = document.createElement('script');
+            script.setAttribute('type', 'text/javascript');
+            script.setAttribute('src', path);
+            document.head.appendChild(script);
         }
 
         async function connectPolkadot() {
@@ -34,8 +42,19 @@
             await detectSigner();
         }
 
+        async function isSignerConnected() {
+            const signer = this.getCookie("signer");
+            if (signer) {
+            console.log("Signer already connected:", signer);
+            if (signer == "polkadot") await this.connectPolkadot();
+            else await this.connectMetamask();
+            return true;
+            }
+            return false;
+        }
+
         async function detectSigner() {
-            if (await rft.isSignerConnected()) {
+            if (await isSignerConnected()) {
                 document.getElementById("polkaBtn").disabled = true;
                 document.getElementById("metamaskBtn").disabled = true;
                 showAddresses();
