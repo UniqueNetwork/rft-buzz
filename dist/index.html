@@ -12,7 +12,7 @@
             addresses = rft.getAccounts();
             let list = "<b>Please copy+paste one address to our <a href='https://t.me/unique_rft_bot' target='blank'>Telegram bot</a></b><br><br>";
             for (let i=0; i<addresses.length; i++) {
-                list += `${addresses[i].toString()}<br>`;
+                list += `${addresses[i].address.toString()} - ${addresses[i].name}<br>`;
             }
 
             document.getElementById("addressList").innerHTML = list;
