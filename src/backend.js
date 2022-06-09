@@ -109,6 +109,37 @@ class User extends DBBase {
 
 }
 
+class Vote extends DBBase {
+  async add(address, pollId, message, signature) {
+    try {
+      address = this.validateAddress(address);
+      const conn = await this.getDbConnection();
+      await conn.query(`INSERT INTO public."Vote" ("Address", "CreateDt", "PollId", "Message", "Signature") VALUES ($1, now(), $2, $3, $4);`, [address, pollId, message, signature]);
+      return true;
+    } catch (e) {
+      if (!e.message.includes("duplicate key")) {
+        console.log(`WARNING: Can't add vote`);
+        console.log(e);
+      }
+      return false;
+    }
+  }
+
+  async getAll() {
+    try {
+      // Get all votes from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT * FROM public."Vote";`);
+      if (res.rows.length > 0) 
+        return res.rows;
+    } catch (e) {}
+
+    return null;
+  }
+
+}
+
 module.exports = {
-  User
+  User,
+  Vote
 };

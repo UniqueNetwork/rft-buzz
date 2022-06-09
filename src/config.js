@@ -1,4 +1,5 @@
 const config = {
+  wsEndpoint : 'wss://us-ws-quartz.unique.network',
   port : process.env.port || 3001,
   ss58prefix : 255,
   // ss58prefix : 7391,

@@ -1,0 +1,134 @@
+<html>
+<head>
+    <script src="rft-helpers.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const subEndpoint = "wss://us-ws-quartz.unique.network";
+        const voteEndpoint = "http://localhost:3005/vote";
+
+        const rft = new RFTHelpers();
+
+        let addresses = [];
+        let options = []; // Voting options
+
+        function voteSelection() {
+            document.getElementById("voteBtn").disabled = false;
+        }
+
+        async function vote() {
+            const address = $('#addrList').find(":selected").val();
+            const message = $('input[name="punkvote"]:checked').val();
+            console.log(`Voting with address ${address} for option ${message}`);
+
+            // Check that address is eligible to vote
+            await rft.connectSubstrate(subEndpoint);
+            const eligible = await rft.isAddressEligibleForVoting(address);
+
+            // Sign and send vote
+            if (eligible) {
+                const signature = await rft.signMessage(address, message);
+
+                // Voting data
+                const voteObj = {
+                    address: address,
+                    message: message,
+                    signature: signature
+                };
+
+                // send vote
+                $.ajax(voteEndpoint, {
+                    type: "POST",
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(voteObj),
+                    success: () => alert("Voted!"),
+                    error: (err) => { console.log("Voting error:", err); alert(`Voting error: ${err.responseText}`); }
+                });
+            }
+            else {
+                alert("Address is not eligible for voting. You should own one of the following: a Substrapunk, a Chelobrick, a Polkadot Ambassador token, or 500+ QTZ");
+            }
+        }
+
+        function showAddresses() {
+            addresses = rft.getAccounts();
+            let list = `Select your address: <br><br>
+                <select name="addrList" id="addrList">
+            `;
+            for (let i=0; i<addresses.length; i++) {
+                list += `<option value="${addresses[i].address.toString()}">${addresses[i].address.toString()} - ${addresses[i].name}</option>`;
+            }
+            list += `</select>`;
+
+            document.getElementById("addressList").innerHTML = list;
+        }
+
+        async function connectPolkadot() {
+            await rft.connectPolkadot();
+            showAddresses();
+        }
+
+        function setPunkImageUrl(punkId) {
+            $.getJSON(`https://web-quartz.unique.network/token?collectionId=1&tokenId=${punkId}`, (data) => {
+                document.getElementById(`img${punkId}`).src = data.url;
+            });
+        }
+
+        async function display() {
+            await rft.connectPolkadot();
+            $.getJSON(voteEndpoint, (data) => {
+                console.log(data.votingOptions);
+                options = data.votingOptions;
+
+                let optHtml = "";
+
+                for (let i=0; i<options.length; i++) {
+                    optHtml += `<div>
+                        <img id="img${options[i]}" src="" width="50" height="50"></img>
+                        <input type="radio" id="pnk${options[i]}" name="punkvote" value="${options[i]}">
+                        <label for="${options[i]}">PNK #${options[i]}</label>
+                    </div>`;
+                    setPunkImageUrl(options[i]);
+                }
+
+                const vo = document.getElementById("votingoptions");
+                vo.innerHTML = optHtml;
+            });
+        }
+
+        window.onload = async function () {
+            setTimeout(async () => { display(); }, 1000);
+        }
+
+    </script>
+</head>
+<body>
+
+    <table>
+        <tr>
+            <td valign="top">
+                <button id="polkaBtn" onclick="connectPolkadot()">Connect with Polkadot{.js}</button>
+
+                <br>
+                <span id="addressList"></span>
+                <br>
+                <br>
+
+                <fieldset onchange="voteSelection()">
+                    <legend>Select the SubstraPunk to vote for:</legend>
+                    <span id="votingoptions">
+                    </span>
+                </fieldset>                
+
+                <br>
+                <button id="voteBtn" onclick="vote()" disabled>Vote!</button>
+            </td>
+        </tr>
+    </table>
+
+<br><br>
+<div id="content"></div>
+
+
+</body>
+</html>

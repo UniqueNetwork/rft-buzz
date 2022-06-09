@@ -3,5 +3,6 @@
 /logs
 /postgres
 /dist
+/data
 webpack.config*
 README*

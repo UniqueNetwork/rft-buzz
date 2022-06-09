@@ -5,15 +5,13 @@
 
 const { ApiPromise, WsProvider } = require('@polkadot/api');
 const { web3Accounts, web3Enable, web3FromAddress } = require('@polkadot/extension-dapp');
-const { stringToHex, u8aToHex, hexToU8a, isHex } = require('@polkadot/util');
+const { stringToHex, hexToU8a, isHex } = require('@polkadot/util');
 const { decodeAddress, encodeAddress } = require('@polkadot/keyring');
 
 var BigNumber = require('bignumber.js');
 BigNumber.config({ DECIMAL_PLACES: 12, ROUNDING_MODE: BigNumber.ROUND_DOWN, decimalSeparator: '.' });
 
-const subEndpoint = "wss://quartz.unique.network";
-const evmEndpoint = "https://rpc-quartz.unique.network/";
-const ss58prefix = 7391;
+const ss58prefix = 255;
 
 class RFTHelpers {
 
@@ -69,6 +67,7 @@ class RFTHelpers {
     let accObj = await web3Accounts({ ss58Format: ss58prefix });
     this.accounts = [];
     for (let i=0; i<accObj.length; i++) {
+      console.log(accObj[i]);
       this.accounts.push({address: accObj[i].address, name: accObj[i].meta.name});
     }
     this.setCookie("signer", "polkadot", 365);
@@ -105,37 +104,16 @@ class RFTHelpers {
     return this.accounts;
   }
 
-  async disconnect() {
-    // if (this.relayApi) {
-    //   try {
-    //     this.relayApi.disconnect();
-    //   } catch (e) {}
-    //   this.relayApi = null;
-    // }
-  }
-
-  async connect() {
-    // if (!this.relayApi) {
-    //   // Initialise the provider to connect to the node
-    //   console.log(`Connecting to ${this.wsEndpointRelay}`);
-    //   const wsProvider = new WsProvider(this.wsEndpointRelay);
+  async connectSubstrate(wsEndpoint) {
+    if (!this.api) {
+      // Initialise the provider to connect to the node
+      console.log(`Connecting to ${wsEndpoint}`);
+      const wsProvider = new WsProvider(wsEndpoint);
     
-    //   // Create the API and wait until ready
-    //   const api = await ApiPromise.create({ provider: wsProvider });
-    //   this.relayApi = api;
-
-    //   // Read token decimals
-    //   const properties = await api.rpc.system.properties();
-    //   if (properties.tokenDecimals)
-    //     this.relayDecimals = properties.tokenDecimals.toHuman()[0];
-    //   else {
-    //     this.relayDecimals = 12;
-    //     console.log(`WARNING, tokenDecimals is not found is system properties. Will be set to a hardcode of ${this.relayDecimals}`);
-    //   }
-    // }
+      // Create the API and wait until ready
+      this.api = await ApiPromise.create({ provider: wsProvider });
+    }
   }
-
-
 
   getTransactionStatus(events, status) {
     if (status.isReady) {
@@ -208,16 +186,32 @@ class RFTHelpers {
     }
   }
 
-  // isAddressEligibleForVoting(address) {
-  //   // Check eligibility
-  //   await connectToNetwork();
-  //   const punks = (await api.query.nonfungible.accountBalance(1, {Substrate: address})).toNumber();
-  //   const chels = (await api.query.nonfungible.accountBalance(2, {Substrate: address})).toNumber();
-  //   const ambs = (await api.query.nonfungible.accountBalance(3, {Substrate: address})).toNumber();
-  //   const qtz = await api.query.balances.account(address);
-  //   console.log("Collection balances: ", punks, chels, ambs, qtz);
+  async isAddressEligibleForVoting(address) {
+    // Check eligibility
+    const punks = (await this.api.query.nonfungible.accountBalance(1, {Substrate: address})).toNumber();
+    const chels = (await this.api.query.nonfungible.accountBalance(2, {Substrate: address})).toNumber();
+    const ambs = (await this.api.query.nonfungible.accountBalance(3, {Substrate: address})).toNumber();
+    const qtzObj = await this.api.query.system.account(address);
+    const qtzTotal = parseFloat(qtzObj.data.free)/1e18; // "free" means total (including frozen balance)
+    console.log("Collection balances: ", punks, chels, ambs, qtzTotal);
 
-  // }
+    return (punks > 0) || (chels > 0) || (ambs > 0) || (qtzTotal > 500);
+  }
+
+  async signMessage(address, message) {
+      const injector = await web3FromAddress(address);
+      this.api.setSigner(injector.signer);
+
+      const signRaw = injector?.signer?.signRaw;
+      if (!!signRaw) {
+          const { signature } = await signRaw({
+              address: address,
+              data: stringToHex(message),
+              type: 'bytes'
+          });
+          return signature;
+      }
+  }
 
 }
 
