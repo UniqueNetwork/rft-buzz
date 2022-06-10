@@ -25,7 +25,7 @@ npm run host
 ## Голосование
 
 Демо-фронт доступен тут:
-https://localhost:3002/vote 
+https://localhost:3002/vote.html
 
 ### Вызовы бэка:
 #### GET /vote 
