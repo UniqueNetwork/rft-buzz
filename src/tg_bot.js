@@ -1,19 +1,20 @@
 require('dotenv').config()
 const { Telegraf } = require('telegraf')
-const { User } = require('./backend');
+const { User, Human } = require('./backend');
 const fs = require('fs');
-const user = new User();
 const Web3 = require('web3');
 const converter = require('number-to-words');
 
 const { Keyring } = require('@polkadot/api');
 const config = require('./config');
 
+const user = new User();
+const human = new Human();
+
 const bot = new Telegraf(process.env.TG_TOKEN) //TG_TOKEN contains the bot ID
 
 const PATH_LOG = `/logs/bot_log.csv`;
 
-let humans = {};
 let addresses = {};
 let emails = {};
 
@@ -80,14 +81,15 @@ function bufferEmail(msg, userId) {
   return false;
 }
 
-function challenge(ctx, again) {
+async function challenge(ctx, again) {
   const a = getRandomInt(100);
   const b = getRandomInt(100);
   const c = getRandomInt(2);
   const problem = `${again ? 'Wrong answer, try again. ':'Just a quick check: '}${converter.toWords(a)} ${c == 0 ? 'times' : 'plus'} ${converter.toWords(b)} is ...`;
 
   ctx.reply(problem).catch( function(error){ console.error(error); } );
-  humans[ctx.message.from.id] = { a: a, b: b, c: c };
+  await human.setChallenge(ctx.message.from.id, JSON.stringify({ a: a, b: b, c: c }));
+  await human.setStatus(ctx.message.from.id, 1);
 }
 
 bot.on('text', async (ctx) => {
@@ -100,13 +102,13 @@ bot.on('text', async (ctx) => {
     const emailMessage = bufferEmail(ctx.message.text, ctx.message.from.id);
 
     // Check if this is a human
-    if (humans[ctx.message.from.id] === undefined) {
-      challenge(ctx, false);
+    let h = await human.get(ctx.message.from.id);
+    if (h.Status == 0) {
+      await challenge(ctx, false);
     }
-    else if (humans[ctx.message.from.id].a !== undefined) { // Question has been asked
-      const a = humans[ctx.message.from.id].a;
-      const b = humans[ctx.message.from.id].b;
-      const c = humans[ctx.message.from.id].c;
+    else if (h.Status == 1) { // Question has been asked
+      const { a, b, c } = JSON.parse(h.Challenge);
+
       let expected_answer = a;
       if (c == 0) expected_answer *= b;
       else expected_answer += b;
@@ -114,15 +116,15 @@ bot.on('text', async (ctx) => {
       const given_answer = parseInt(ctx.message.text);
 
       if (given_answer == expected_answer) {
-        humans[ctx.message.from.id] = true;
+        await human.setStatus(ctx.message.from.id, 2);
       }
       else {
-        delete humans[ctx.message.from.id];
-        challenge(ctx, true);
+        await challenge(ctx, true);
       }
     }
 
-    if (humans[ctx.message.from.id] === true) {
+    h = await human.get(ctx.message.from.id);
+    if (h.Status == 2) {
       // This is a human, we can continue. Register, then add email
       const u = await user.getByKyc("telegram", ctx.message.from.id);
       const email = ((u) && (u.Email) && (u.Email.length > 3)) || (emails[ctx.message.from.id] !== undefined);

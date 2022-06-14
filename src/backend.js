@@ -139,7 +139,58 @@ class Vote extends DBBase {
 
 }
 
+class Human extends DBBase {
+
+  validate(telegramId) {
+    return '' + parseInt(telegramId);
+  }
+
+  async get(telegramId) {
+    try {
+      const telegramIdValidated = this.validate(telegramId);
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT * FROM public."Human" where "TelegramId" = $1;`, [telegramIdValidated]);
+      if (res.rows.length > 0) {
+        return { Status: res.rows[0].Status, Challenge: res.rows[0].Challenge };
+      }
+      else {
+        await conn.query(`INSERT INTO public."Human" ("TelegramId", "Status") VALUES ($1, $2);`, [telegramIdValidated, 0]);
+        return { Status: 0, Challenge: null };
+      }
+
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async setStatus(telegramId, status) {
+    try {
+      const telegramIdValidated = this.validate(telegramId);
+      const conn = await this.getDbConnection();
+      await conn.query(`UPDATE public."Human" SET "Status" = ${status} WHERE "TelegramId" = '${telegramIdValidated}';`);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return null;
+  }
+
+  async setChallenge(telegramId, challenge) {
+    try {
+      const telegramIdValidated = this.validate(telegramId);
+      const conn = await this.getDbConnection();
+      await conn.query(`UPDATE public."Human" SET "Challenge" = '${challenge}' WHERE "TelegramId" = '${telegramIdValidated}';`);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return null;
+  }
+
+}
+
 module.exports = {
   User,
-  Vote
+  Vote,
+  Human
 };

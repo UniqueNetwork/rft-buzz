@@ -48,6 +48,20 @@ services:
       - rfteventnet
     restart: unless-stopped
 
+  migration:
+    container_name: migration
+    build:
+      context: .
+      dockerfile: ./Dockerfile.migrate
+    env_file:
+      - ./.env
+    volumes:
+      - ./data:/data
+    networks:
+      - rfteventnet
+    depends_on:
+      - rft_buzz_db
+
   export:
     container_name: export
     build:
@@ -59,6 +73,8 @@ services:
       - ./data:/data
     networks:
       - rfteventnet
+    depends_on:
+      - migration
 
 networks:
   rfteventnet:
