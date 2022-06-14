@@ -62,8 +62,8 @@ services:
     depends_on:
       - rft_buzz_db
 
-  export:
-    container_name: export
+  exportrft:
+    container_name: exportrft
     build:
       context: .
       dockerfile: ./Dockerfile.export
