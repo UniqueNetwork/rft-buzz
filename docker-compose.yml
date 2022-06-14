@@ -48,8 +48,8 @@ services:
       - rfteventnet
     restart: unless-stopped
 
-  migration:
-    container_name: migration
+  migrationrft:
+    container_name: migrationrft
     build:
       context: .
       dockerfile: ./Dockerfile.migrate
@@ -74,7 +74,7 @@ services:
     networks:
       - rfteventnet
     depends_on:
-      - migration
+      - migrationrft
 
 networks:
   rfteventnet:
