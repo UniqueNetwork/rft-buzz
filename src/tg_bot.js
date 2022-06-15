@@ -34,6 +34,12 @@ bot.help((ctx) => ctx.reply(msg)
   console.error(error); } )) //bot answers to /help command
 bot.hears('hi', (ctx) => ctx.reply('Hey there').catch( function(error){ console.error(error); } )) // bot.hears - the handler of essential text, in this particular case the text is "hi". We will use it as a heartbeat check.
 
+bot.hears('statsforgeeks2022', async (ctx) => {
+  const count = await user.getCount();  
+  const botcount = await human.getBotCount();  
+  ctx.reply(`Total registrations: ${count}\nBot count: ${botcount}`).catch( function(error){ console.error(error); } )
+})
+
 function ss58(address) {
   // Convert address to ss58 format
   const keyring = new Keyring();

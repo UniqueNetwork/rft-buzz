@@ -107,6 +107,16 @@ class User extends DBBase {
     return null;
   }
 
+  async getCount() {
+    try {
+      // Get all users from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT count(*) as "Count" FROM public."User";`);
+      if (res.rows.length > 0) 
+        return res.rows[0].Count;
+    } catch (e) {}
+  }
+
 }
 
 class Vote extends DBBase {
@@ -186,6 +196,18 @@ class Human extends DBBase {
 
     return null;
   }
+
+  async getBotCount() {
+    try {
+      // Get all users from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT count(*) as "Count" FROM public."Human" where "Status" <> 2;`);
+      if (res.rows.length > 0) 
+        return res.rows[0].Count;
+    } catch (e) {}
+  }
+
+
 
 }
 
