@@ -139,7 +139,7 @@ bot.on('text', async (ctx) => {
       const email = ((u) && (u.Email) && (u.Email.length > 3)) || (emails[ctx.message.from.id] !== undefined);
 
       if (u) {
-        if (!emailMessage) ctx.reply(`You have already registered an address previously: ${u.Address}${email ? '':'\n\nBut you have not yet provided an email address. Please enter your email address if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
+        if (!emailMessage) ctx.reply(`You have already registered an address previously: ${u.Address}\n\n${email ? '':'\n\nBut you have not yet provided an email address. Please enter your email address if you would like to receive updates about Unique Network! \n\n https://unique.network/punk/'}`).catch( function(error){ console.error(error); } );
       }
       else if (addresses[ctx.message.from.id] === undefined) {
           ctx.reply(`The address you provided is incorrect, please try again.`).catch( function(error){ console.error(error); } );
@@ -148,7 +148,7 @@ bot.on('text', async (ctx) => {
         await user.register(addresses[ctx.message.from.id], "telegram", ctx.message.from.id);
         delete addresses[ctx.message.from.id]; // cleanup
 
-        ctx.reply(`Thank you for registering for RFT campaign! Now you can get back and stay tuned\n\n https://unique.network/punk/ \n\n!${email ? '':'\n\nAlso, you can enter your email address here if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
+        ctx.reply(`Thank you for registering for RFT campaign! Now you can get back and stay tuned.\n\n https://unique.network/punk/ ${email ? '':'\n\nAlso, you can enter your email address here if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
         fs.appendFileSync(PATH_LOG, `${Date()},${ctx.message.from.id},${ctx.message.from.username},${ctx.message.from.first_name},${ctx.message.from.last_name},${ctx.message.text}\n`);
       }
 
