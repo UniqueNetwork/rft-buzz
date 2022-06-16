@@ -24,7 +24,10 @@ bot.catch((err) => {
 
 bot.start((ctx) => ctx.reply(`
 Hi ${ctx.from.first_name}!
-Please enter your wallet address to register for RFT campaign. Make sure you use an address that you have created with Metamask or Polkadot{.js}. Do not use addresses from exchanges, Ledger or other wallets as they will not support RFTs properly. Either Substrate (Polkadot, Kusama, Unique, or Quartz) or Ethereum addresses are acceptable.
+
+Welsome to Unique RFT Campaign! Here you can leave your wallet address to receive a FREE fraction of cryptopunk 3042.
+
+Make sure you use an address that you have created with Metamask or Polkadot{.js}. Do not use addresses from exchanges, Ledger or other wallets as they will not support RFTs properly. Either Substrate (Polkadot, Kusama, Unique, or Quartz) or Ethereum addresses are acceptable.
 `).catch( function(error){ console.error(error); } ))
 
 const msg = `Please enter your wallet address.`;
@@ -145,7 +148,7 @@ bot.on('text', async (ctx) => {
         await user.register(addresses[ctx.message.from.id], "telegram", ctx.message.from.id);
         delete addresses[ctx.message.from.id]; // cleanup
 
-        ctx.reply(`Thank you for registering for RFT campaign! Get back to the RFT campaign page and stay tuned for the next steps!${email ? '':'\n\nAlso, you can enter your email address here if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
+        ctx.reply(`Thank you for registering for RFT campaign! Now you can get back and stay tuned\n\n https://unique.network/punk/ \n\n!${email ? '':'\n\nAlso, you can enter your email address here if you would like to receive updates about Unique Network!'}`).catch( function(error){ console.error(error); } );
         fs.appendFileSync(PATH_LOG, `${Date()},${ctx.message.from.id},${ctx.message.from.username},${ctx.message.from.first_name},${ctx.message.from.last_name},${ctx.message.text}\n`);
       }
 
