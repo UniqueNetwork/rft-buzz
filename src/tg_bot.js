@@ -139,7 +139,7 @@ bot.on('text', async (ctx) => {
       const email = ((u) && (u.Email) && (u.Email.length > 3)) || (emails[ctx.message.from.id] !== undefined);
 
       if (u) {
-        if (!emailMessage) ctx.reply(`You have already registered an address previously: ${u.Address}\n\n${email ? '':'\n\nBut you have not yet provided an email address. Please enter your email address if you would like to receive updates about Unique Network! \n\n https://unique.network/punk/'}`).catch( function(error){ console.error(error); } );
+        if (!emailMessage) ctx.reply(`You have already registered an address previously: ${u.Address}\n\n${email ? '':'\n\nBut you have not yet provided an email address. Please enter your email address if you would like to receive updates about Unique Network!'} \n\n https://unique.network/punk/`).catch( function(error){ console.error(error); } );
       }
       else if (addresses[ctx.message.from.id] === undefined) {
           ctx.reply(`The address you provided is incorrect, please try again.`).catch( function(error){ console.error(error); } );
