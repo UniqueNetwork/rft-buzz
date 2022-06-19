@@ -41,7 +41,7 @@ class DBBase {
     } catch (e) {}
     try {
       if (Web3.utils.isAddress(address))
-        ret = address;
+        ret = address.toLowerCase();
     } catch (e) {}
     if (ret.length > 0) return ret;
     else throw new Error("Invalid Address");
@@ -77,7 +77,7 @@ class User extends DBBase {
  
       // Get user from the DB
       const conn = await this.getDbConnection();
-      const res = await conn.query(`SELECT * FROM public."User" WHERE "Address" = '${address}';`);
+      const res = await conn.query(`SELECT * FROM public."User" WHERE LOWER("Address") = '${address}';`);
       if (res.rows.length > 0) 
         return res.rows[0];
     } catch (e) {}
