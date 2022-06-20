@@ -91,8 +91,8 @@ function bufferEmail(msg, userId) {
 }
 
 async function challenge(ctx, again) {
-  const a = getRandomInt(100);
-  const b = getRandomInt(100);
+  const a = getRandomInt(10);
+  const b = getRandomInt(10);
   const c = getRandomInt(2);
   const problem = `${again ? 'Wrong answer, try again. ':'Just a quick check: '}${converter.toWords(a)} ${c == 0 ? 'times' : 'plus'} ${converter.toWords(b)} is ...`;
 
