@@ -46,6 +46,18 @@ app.get('/vote', async function(req, res) {
   res.json({ votingOptions: votingOptions });
 });
 
+app.get('/addrvote', async function(req, res) {
+  try {
+    const uriprm = req.query.address;
+    const message = await vote.get(uriprm, pollId);
+    res.json({ message: message });
+  }
+  catch (e) {
+    console.log(e);
+    res.status(500).send('Server error');
+  }
+});
+
 function parseMessage(message) {
   const opt = parseInt(message);
   if (votingOptions.includes(opt)) return opt;

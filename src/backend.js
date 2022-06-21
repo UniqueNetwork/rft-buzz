@@ -41,9 +41,9 @@ class DBBase {
     } catch (e) {}
     try {
       if (Web3.utils.isAddress(address))
-        ret = address.toLowerCase();
+        ret = address;
     } catch (e) {}
-    if (ret.length > 0) return ret;
+    if (ret.length > 0) return ret.toLowerCase();
     else throw new Error("Invalid Address");
   }
 };
@@ -131,6 +131,21 @@ class Vote extends DBBase {
         console.log(`WARNING: Can't add vote`);
         console.log(e);
       }
+      return false;
+    }
+  }
+
+  async get(address, pollId) {
+    try {
+      address = this.validateAddress(address);
+      pollId = parseInt(pollId);
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT * FROM public."Vote" WHERE LOWER("Address") = '${address}' AND "PollId" = ${pollId};`);
+      if (res.rows.length > 0) 
+        return res.rows[0].Message;
+    } catch (e) {
+      console.log(`WARNING: Can't read vote`);
+      console.log(e);
       return false;
     }
   }
