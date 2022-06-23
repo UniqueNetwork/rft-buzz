@@ -195,7 +195,7 @@ class RFTHelpers {
     const qtzTotal = parseFloat(qtzObj.data.free)/1e18; // "free" means total (including frozen balance)
     console.log("Collection balances: ", punks, chels, ambs, qtzTotal);
 
-    return (punks > 0) || (chels > 0) || (ambs > 0) || (qtzTotal > 500);
+    return (punks > 0) || (chels > 0) || (ambs > 0) || (qtzTotal >= 500);
   }
 
   async signMessage(address, message) {
