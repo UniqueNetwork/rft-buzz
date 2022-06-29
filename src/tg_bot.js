@@ -25,7 +25,7 @@ bot.catch((err) => {
 bot.start((ctx) => ctx.reply(`
 Hi ${ctx.from.first_name}!
 
-Welsome to Unique RFT Campaign! Here you can leave your wallet address to receive a FREE fraction of cryptopunk 3042.
+Welcome to Unique RFT Campaign! Here you can leave your wallet address to receive a FREE fraction of cryptopunk 3042.
 
 Make sure you use an address that you have created with Metamask or Polkadot{.js}. Do not use addresses from exchanges, Ledger or other wallets as they will not support RFTs properly. Either Substrate (Polkadot, Kusama, Unique, or Quartz) or Ethereum addresses are acceptable.
 `).catch( function(error){ console.error(error); } ))
