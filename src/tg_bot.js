@@ -23,7 +23,7 @@ bot.catch((err) => {
 })
 
 bot.start((ctx) => ctx.reply(`
-Hi ${ctx.from.first_name}!
+Hi, ${ctx.from.first_name}!
 
 Welcome to Unique RFT Campaign! Here you can leave your wallet address to receive a FREE fraction of cryptopunk 3042.
 
@@ -94,7 +94,7 @@ async function challenge(ctx, again) {
   const a = getRandomInt(10);
   const b = getRandomInt(10);
   const c = getRandomInt(2);
-  const problem = `${again ? 'Wrong answer, try again. ':'Just a quick check: '}${converter.toWords(a)} ${c == 0 ? 'times' : 'plus'} ${converter.toWords(b)} is ...`;
+  const problem = `${again ? 'Wrong answer, try again. ':'Just a quick check: '}${converter.toWords(a)} ${c == 0 ? 'times' : 'plus'} ${converter.toWords(b)} is ... (please type your answer below)`;
 
   ctx.reply(problem).catch( function(error){ console.error(error); } );
   await human.setChallenge(ctx.message.from.id, JSON.stringify({ a: a, b: b, c: c }));
