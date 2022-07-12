@@ -117,6 +117,16 @@ class User extends DBBase {
     } catch (e) {}
   }
 
+  async getEmailCount() {
+    try {
+      // Get all distinct emails from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT count(DISTINCT "Email") as "Count" FROM public."User";`);
+      if (res.rows.length > 0) 
+        return res.rows[0].Count;
+    } catch (e) {}
+  }
+
 }
 
 class Vote extends DBBase {
