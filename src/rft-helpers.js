@@ -186,19 +186,17 @@ class RFTHelpers {
     }
   }
 
-  async isAddressEligibleForVoting(address) {
-    // Check eligibility
-    const punks = (await this.api.query.nonfungible.accountBalance(1, {Substrate: address})).toNumber();
-    const chels = (await this.api.query.nonfungible.accountBalance(2, {Substrate: address})).toNumber();
-    const ambs = (await this.api.query.nonfungible.accountBalance(3, {Substrate: address})).toNumber();
-    const qtzObj = await this.api.query.system.account(address);
-    const qtzTotal = parseFloat(qtzObj.data.free)/1e18; // "free" means total (including frozen balance)
-    console.log("Collection balances: ", punks, chels, ambs, qtzTotal);
-
-    return (punks > 0) || (chels > 0) || (ambs > 0) || (qtzTotal >= 500);
-  }
-
   async signMessage(address, message) {
+    if (address.startsWith("0x")) {
+      // Sign with Metamask
+      const signature = await ethereum.request({
+        method: 'personal_sign',
+        params: ["Voting for PNK " + message, address],
+      });
+      return signature;
+    }
+    else {
+      // Sign with Polkadot
       const injector = await web3FromAddress(address);
       this.api.setSigner(injector.signer);
 
@@ -211,6 +209,7 @@ class RFTHelpers {
           });
           return signature;
       }
+    }
   }
 
 }

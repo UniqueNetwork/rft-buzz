@@ -3,6 +3,7 @@ const config = {
   port : process.env.port || 3001,
   ss58prefix : 255,
   // ss58prefix : 7391,
+  seed : process.env.OWNER_SEED || '//Alice',
 
   dbHost : process.env.DB_HOST || 'localhost',
   dbPort : process.env.DB_PORT || 5433,
