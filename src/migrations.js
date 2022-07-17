@@ -6,13 +6,14 @@ var BigNumber = require('bignumber.js');
 BigNumber.config({ DECIMAL_PLACES: 12, ROUNDING_MODE: BigNumber.ROUND_DOWN, decimalSeparator: '.' });
 
 const migrations = [
-  { file: "./migration01.sql", condition: always_yes }
+  { file: "./migration01.sql", condition: always_yes },
+  { file: "./migration02.sql", condition: always_yes }
 ]
 
 let dbClient = null;
 
 const pgTables = {
-  bonusAddress: 'BonusAddress'
+  // bonusAddress: 'BonusAddress'
 }
 
 async function getDbConnection() {
