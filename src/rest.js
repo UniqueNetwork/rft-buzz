@@ -128,7 +128,7 @@ app.post('/vote', async function(req, res) {
     if (address.startsWith("0x")) {
       const recoveredAddr = recoverPersonalSignature({
         data: "Voting for PNK " + message,
-        sig: signature
+        signature: signature
       });
       if (address != recoveredAddr) {
         res.status(400).send('Invalid Signature');

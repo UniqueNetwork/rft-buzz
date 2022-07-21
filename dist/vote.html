@@ -78,7 +78,7 @@
         }
 
         async function display() {
-            await rft.connectPolkadot();
+            // await rft.connectPolkadot();
             $.getJSON(voteEndpoint, (data) => {
                 console.log(data.votingOptions);
                 options = data.votingOptions;
