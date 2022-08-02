@@ -1,6 +1,6 @@
 require('dotenv').config()
 const { Telegraf } = require('telegraf')
-const { User, Human } = require('./backend');
+const { User, Human, Vote } = require('./backend');
 const fs = require('fs');
 const Web3 = require('web3');
 const converter = require('number-to-words');
@@ -10,6 +10,7 @@ const config = require('./config');
 
 const user = new User();
 const human = new Human();
+const vote = new Vote();
 
 const bot = new Telegraf(process.env.TG_TOKEN) //TG_TOKEN contains the bot ID
 
@@ -39,9 +40,18 @@ bot.hears('hi', (ctx) => ctx.reply('Hey there').catch( function(error){ console.
 
 bot.hears('statsforgeeks2022', async (ctx) => {
   const count = await user.getCount();
-  const emails = await user.getEmailCount();  
-  const botcount = await human.getBotCount();  
-  ctx.reply(`Total registrations: ${count}\nEmail count: ${emails}\nBot count: ${botcount}`).catch( function(error){ console.error(error); } )
+  const emails = await user.getEmailCount();
+  const botcount = await human.getBotCount();
+  const tallies = await vote.getTallies();
+  const voteCount = await vote.getVoteCount();
+
+  let talliesStr = "\nVoting Results:";
+  talliesStr += `\n    Total votes: ${voteCount}`;
+  for (let i=0; i<tallies.length; i++) {
+    talliesStr += `\n    Punk #${i+1}: ${tallies[i].Message} (${tallies[i].c} votes)`;
+  }
+
+  ctx.reply(`Total registrations: ${count}\nEmail count: ${emails}\nBot count: ${botcount}\n${talliesStr}`).catch( function(error){ console.error(error); } )
 })
 
 function ss58(address) {
@@ -169,3 +179,7 @@ bot.on('text', async (ctx) => {
 
 console.log('==================== START ====================');
 bot.launch() // launch of our bot
+
+// Test - send a message by context id
+// const chatId = 409897219;
+// bot.telegram.sendMessage(chatId, "Time is: " + new Date());

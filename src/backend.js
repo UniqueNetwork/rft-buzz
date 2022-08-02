@@ -172,6 +172,30 @@ class Vote extends DBBase {
     return null;
   }
 
+  async getVoteCount() {
+    try {
+      // Get all votes from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT count(*) as "c" FROM public."Vote";`);
+      if (res.rows.length > 0) 
+        return res.rows[0].c;
+    } catch (e) {}
+
+    return null;
+  }
+
+  async getTallies() {
+    try {
+      // Get vote tallies from the DB
+      const conn = await this.getDbConnection();
+      const res = await conn.query(`SELECT count(*) as "c", "Message" FROM public."Vote" GROUP BY "Message" ORDER BY "c" DESC LIMIT 3;`);
+      if (res.rows.length > 0) 
+        return res.rows;
+    } catch (e) {}
+
+    return null;
+  }
+
 }
 
 class Human extends DBBase {
